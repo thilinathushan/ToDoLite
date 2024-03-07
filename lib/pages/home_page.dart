@@ -1,8 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:to_do_lite/data/database.dart';
-import 'package:to_do_lite/util/dialog_box.dart';
-import 'package:to_do_lite/util/todo_tile.dart';
+import 'package:provider/provider.dart';
+import '../Styles/light_theme.dart';
+import '../Styles/styles.dart';
+import '../data/database.dart';
+import '../provider/theme_provider.dart';
+import '../util/custom_app_bar.dart';
+import '../util/dialog_box.dart';
+import '../util/todo_tile.dart';
+
+// ignore: must_be_immutable
+class GradientFloatingActionBar extends StatelessWidget {
+  GradientFloatingActionBar({
+    super.key,
+    required this.onPressed,
+    required this.icon,
+  });
+
+  void Function()? onPressed;
+  Icon icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: onPressed,
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: [
+              Color.fromARGB(255, 66, 133, 244),
+              Color.fromARGB(255, 155, 114, 203),
+              Color.fromARGB(255, 217, 101, 112),
+            ],
+          ),
+        ),
+        child: icon,
+      ),
+    );
+  }
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -55,7 +94,10 @@ class _HomePageState extends State<HomePage> {
         return DialogBox(
           controller: _controller,
           onSave: saveNewTask,
-          onCancel: () => Navigator.of(context).pop(),
+          onCancel: () {
+            _controller.clear();
+            Navigator.of(context).pop();
+          },
         );
       },
     );
@@ -70,20 +112,35 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Color selectTextColor(ThemeData themeData) {
+    Color textColor;
+    if (themeData == lighttheme) {
+      textColor = blackColor;
+    } else {
+      textColor = primaryWhite;
+    }
+    return textColor;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.yellow[200],
-      appBar: AppBar(
-        title: const Center(
-          child: Text("To Do LITE"),
-        ),
-        elevation: 0,
-      ),
-      floatingActionButton: FloatingActionButton(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: const CustomAppBar(),
+      floatingActionButton: GradientFloatingActionBar(
         onPressed: createNewTask,
-        child: const Icon(Icons.add),
+        icon: Icon(
+          Icons.add,
+          color: selectTextColor(Provider.of<ThemeProvider>(context).themeData),
+        ),
       ),
       body: ListView.builder(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         itemCount: db.toDoList.length,
         itemBuilder: (context, index) {
           return ToDoTile(

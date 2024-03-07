@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_lite/pages/home_page.dart';
+import 'package:provider/provider.dart';
+import 'provider/theme_provider.dart';
+import 'pages/home_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
@@ -10,7 +12,12 @@ void main() async {
   // ignore: unused_local_variable
   var box = await Hive.openBox('mybox');
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,7 +28,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const HomePage(),
-      theme: ThemeData(primarySwatch: Colors.yellow),
+      theme: Provider.of<ThemeProvider>(context).themeData,
+      darkTheme: Provider.of<ThemeProvider>(context).themeData,
     );
   }
 }
