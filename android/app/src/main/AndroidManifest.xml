@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.to_do_lite">
+    package="com.thilinathushan.dev.to_do_lite">
    <application
         android:label="To Do Lite"
         android:name="${applicationName}"
